@@ -218,7 +218,7 @@ char *Formatter(char const *msg,
 }
 
 int _writeFile(char *msg, char *filename) {
-    FILE *fp = fopen(filename, "w");
+    FILE *fp = fopen(filename, "a");
     if (fp) {
         fputs(msg, fp);
         fclose(fp);
