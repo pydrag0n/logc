@@ -208,7 +208,6 @@ char *Formatter(char const *msg,
             }
 
             strcat(output, in_output);
-
         } else { 
             strncat(output, &form[i], 1); 
         }
@@ -234,9 +233,11 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
     if (!p) { return -1; }
 
     if (logCfg->level == f_type || logCfg->level == ALL) {
-        printf("%s\n", p);
+        printf("%s", p);
         _writeFile(p, DEFAULT_FILENAME);
-    } else { _writeFile(p, DEFAULT_FILENAME); }
+    } else { 
+        _writeFile(p, DEFAULT_FILENAME); 
+    }
 
     free(p);
     return 0;
@@ -263,5 +264,5 @@ void test_logging() {
 
 }
 // =============================================================================================================
-// починить дефолтные значения log_Config / сделать более читабльный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера / протестировать setFuncs ? цветной режим
+// починить дефолтные значения log_Config / сделать более читабельный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера  ? цветной режим ?
  
