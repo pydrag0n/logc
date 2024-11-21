@@ -1,0 +1,1 @@
+gcc loger.c -o loger.exe & loger

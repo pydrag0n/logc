@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 #define ALL     0
 #define INFO    1
 #define ERROR   2
@@ -10,12 +11,47 @@
 #define DEBUG   4
 
 
-
 #define LOG_COLOR               0
-#define DEFAULT_FILENAME        "_logs.log"
-#define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)"
 #define DEFAULT_DATE_FORMAT     3
 
+#define DEFAULT_FILENAME        "_logs.log"
+#define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)"
+
+#define info_print(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
+#define warning_print(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
+#define error_print(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
+#define debug_print(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
+
+
+#ifdef LOG_COLOR
+
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
+#define WHITE   "\033[37m"
+#define GREY    "\e[38;5;240"
+
+#define INFO_TEXT   _colorText(GREEN,   "INFO")
+#define ERROR_TEXT  _colorText(RED,     "ERROR")
+#define WARN_TEXT   _colorText(RED,     "WARNING")
+#define DEBUG_TEXT  _colorText(CYAN,    "DEBUG")
+#define ALL_TEXT    _colorText(BLUE,    "ALL")
+
+#else
+
+#define INFO_TEXT   "INFO"
+#define ERROR_TEXT  "ERROR"
+#define WARN_TEXT   "WARNING"
+#define DEBUG_TEXT  "DEBUG"
+#define ALL_TEXT  "ALL"
+
+#define UNCNOWN     "UNCNOWN_PARAM"
+
+#endif
 
 typedef struct log
 {
@@ -24,26 +60,34 @@ typedef struct log
     char *format;
     int level;
 
-} Log_Config;
+} Config;
 
 
-void setLevel(Log_Config *logCfg, int const Level) { logCfg->level = Level; }
+void setLevel(Config *logCfg, int const Level) { logCfg->level = Level; }
 
-void setFilename(Log_Config *logCfg, char *Filename) { logCfg->filename = Filename; }
+void setFilename(Config *logCfg, char *Filename) { logCfg->filename = Filename; }
 
-void setFormat(Log_Config *logCfg, char *Format) { logCfg->format = Format; }
+void setFormat(Config *logCfg, char *Format) { logCfg->format = Format; }
 
-Log_Config initConf(char *Filename, char *Format, int Level) 
-{
-    Log_Config logCfg;
-    
-    logCfg.filename = (Filename != NULL) ? Filename : DEFAULT_FILENAME;
-    logCfg.format = (Format != NULL) ? Format : DEFAULT_FORMAT;
-    logCfg.level = Level;
 
-    return logCfg;
+char *_colorText(char *color, char *text) {
+    if (color == NULL || text == NULL) {
+        return NULL;
+    }
+
+    size_t length = strlen(color) + strlen(text) + strlen(RESET) + 1;
+    char *tx = malloc(length);
+
+    if (tx == NULL) {
+        return NULL;
+    }
+
+    sprintf(tx, "%s%s%s", color, text, RESET);
+    return tx;
 }
-char *getFormatTime(char dateType) 
+
+
+char *getDatetime(char dateType) 
 {
     int date_size = 256;
     char *datetime = malloc(date_size);
@@ -95,8 +139,8 @@ char *getFormatTime(char dateType)
 }
 
 
-char *useFormat(char const *msg,
-                Log_Config *logCfg,
+char *Formatter(char const *msg,
+                Config *logCfg,
                 int f_type,
                 int line_num,
                 const char *filename) 
@@ -137,7 +181,7 @@ char *useFormat(char const *msg,
             } else if (strcmp(param, "filename") == 0) {
                 sprintf(in_output, "%s", filename);
             } else if (strcmp(param, "time") == 0) {
-                sprintf(in_output, "%s", getFormatTime(DEFAULT_DATE_FORMAT));
+                sprintf(in_output, "%s", getDatetime(DEFAULT_DATE_FORMAT));
             } else if (strcmp(param, "message") == 0) {
                 sprintf(in_output, "%s", msg);
             } else if (strcmp(param, "level") == 0) {
@@ -184,9 +228,9 @@ int _writeFile(char *msg, char *filename) {
     return -1;
 }
 
-int _based_print(const char *msg, Log_Config *logCfg, int lineNum, const char *filename, int f_type) 
+int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filename, int f_type) 
 {
-    char *p = useFormat(msg, logCfg, f_type, lineNum, filename);
+    char *p = Formatter(msg, logCfg, f_type, lineNum, filename);
     if (!p) { return -1; }
 
     if (logCfg->level == f_type || logCfg->level == ALL) {
@@ -198,16 +242,13 @@ int _based_print(const char *msg, Log_Config *logCfg, int lineNum, const char *f
     return 0;
 }
 
-#define info_print(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
-#define warning_print(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
-#define err_print(msg, logCfg)      _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
-#define debug_print(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
+
 
 void test_logging() {
-    Log_Config config;
+    Config config;
 
-    config.level = INFO;
-    config.format = "%(time) [%(level)] %(filename):%(line) %(message)";
+    config.level = ALL;
+    config.format = "%(time)  [%(level)]\t %(filename):%(line)   %(message)";
     config.filename = "logs.log";
 
     const char* info_message = "This is an info message";
@@ -217,16 +258,10 @@ void test_logging() {
 
     info_print(info_message, &config);
     warning_print(warning_message, &config);
-    err_print(error_message, &config);
+    error_print(error_message, &config);
     debug_print(debug_message, &config);
 
 }
-
-int main(int argc, char const *argv[])
-{
-    test_logging();
-    
-    // Log_Config logConfig = initConf("_ed_log.log", "%(time) [%(level)] %(filename):%(line) %(message)", ALL);
-    // info_print("============info print========", &logConfig);
-    return 0;
-}
+// =============================================================================================================
+// починить дефолтные значения log_Config / сделать более читабльный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера / протестировать setFuncs ? цветной режим
+ 
