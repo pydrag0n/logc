@@ -5,17 +5,17 @@
 #define DEBUG   4
 #define FATAL   5
 
-#define COLOR_ENABLED 1
+#define COLOR_ENABLED   1
 
 #define DEFAULT_DATE_FORMAT     3
 
-#define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)"
+#define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)\n"
 
-#define log_info(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
-#define log_warning(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
-#define log_error(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
-#define log_debug(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
-#define log_fatal(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, FATAL)
+#define log_info(msg)     _log_append(msg, __LINE__, __FILE__, INFO)
+#define log_warning(msg)  _log_append(msg, __LINE__, __FILE__, WARN)
+#define log_error(msg)    _log_append(msg, __LINE__, __FILE__, ERROR)
+#define log_debug(msg)    _log_append(msg, __LINE__, __FILE__, DEBUG)
+#define log_fatal(msg)    _log_append(msg, __LINE__, __FILE__, FATAL)
 
 #define RESET       "\e[0m"
 #define RED         "\e[31m"

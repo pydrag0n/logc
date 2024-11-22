@@ -23,34 +23,22 @@ const char* _log_level_text[] = {
     "FATAL"
 };
 
+static Config def_cfg = {DEFAULT_FILENAME, DEFAULT_FORMAT, ALL};
 
-void setLevel(Config *logCfg, int const Level)      { logCfg->level = Level; }
+void set_filename(char *Filename)    { def_cfg.filename = Filename; }
 
-void setFilename(Config *logCfg, char *Filename)    { logCfg->filename = Filename; }
+void set_format(char *Format)        { def_cfg.format = Format; }
 
-void setFormat(Config *logCfg, char *Format)        { logCfg->format = Format; }
+void set_level(int const Level)      { def_cfg.level = Level; }
 
-void setColor(Config *logCfg, char color)           { logCfg->color = color; }
-
-
-char *_colorText(char *color, char *text) {
-    if (color == NULL || text == NULL) {
-        return NULL;
-    }
-
-    size_t length = strlen(color) + strlen(text) + strlen(RESET) + 1;
-    char *tx = malloc(length);
-
-    if (tx == NULL) {
-        return NULL;
-    }
-
-    sprintf(tx, "%s%s%s", color, text, RESET);
-    return tx;
+void set_def_cfg(Config *log_cfg)
+{
+    def_cfg = *log_cfg;
 }
 
+Config *get_def_cfg() { return &def_cfg; }
 
-char *getDatetime(char dateType)
+char *get_datetime(char date_type)
 {
     int date_size = 256;
     char *datetime = malloc(date_size);
@@ -60,7 +48,7 @@ char *getDatetime(char dateType)
     time(&rawtime);
     timeinfo = localtime(&rawtime);
 
-    switch (dateType)
+    switch (date_type)
     {
 
     case 1: // 20-11-2024 21:50:10
@@ -101,9 +89,25 @@ char *getDatetime(char dateType)
     return datetime;
 }
 
+char *_colorText(char *color, char *text) {
+    if (color == NULL || text == NULL) {
+        return NULL;
+    }
 
-char *Formatter(char const *msg,
-                Config *logCfg,
+    size_t length = strlen(color) + strlen(text) + strlen(RESET) + 1;
+    char *tx = malloc(length);
+
+    if (tx == NULL) {
+        return NULL;
+    }
+
+    sprintf(tx, "%s%s%s", color, text, RESET);
+    return tx;
+}
+
+
+char *_Formatter(char const *msg,
+                Config *log_cfg,
                 int f_type,
                 int line_num,
                 const char *filename)
@@ -121,7 +125,7 @@ char *Formatter(char const *msg,
     }
 
     output[0] = '\0';
-    const char *form = logCfg->format;
+    const char *form = log_cfg->format;
 
     for (int i = 0; form[i] != '\0'; i++) {
         if (form[i] == '%' && form[i + 1] == '(') {
@@ -145,7 +149,7 @@ char *Formatter(char const *msg,
             } else if (strcmp(param, "filename") == 0) {
                 sprintf(in_output, "%s", filename);
             } else if (strcmp(param, "time") == 0) {
-                sprintf(in_output, "%s", getDatetime(DEFAULT_DATE_FORMAT));
+                sprintf(in_output, "%s", get_datetime(DEFAULT_DATE_FORMAT));
             } else if (strcmp(param, "message") == 0) {
                 sprintf(in_output, "%s", msg);
             } else if (strcmp(param, "level") == 0) {
@@ -155,15 +159,17 @@ char *Formatter(char const *msg,
             }
 
             strcat(output, in_output);
+
         } else {
             strncat(output, &form[i], 1);
         }
     }
+
     free(in_output);
     return output;
 }
 
-int _writeFile(char *msg, char *filename) {
+int _write_file(char *msg, char *filename) {
     FILE *fp = fopen(filename, "a");
     if (fp) {
         fputs(msg, fp);
@@ -174,12 +180,15 @@ int _writeFile(char *msg, char *filename) {
     return -1;
 }
 
-int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filename, int f_type)
+int _log_append(const char *msg, int line_num, const char *filename, int f_type)
 {
-    char *p = Formatter(msg, logCfg, f_type, lineNum, filename);
+    Config *log_cfg = get_def_cfg();
+    char *p = _Formatter(msg, log_cfg, f_type, line_num, filename);
+
     if (!p) { return -1; }
 
-    if (logCfg->level == f_type || logCfg->level == ALL) {
+    if (log_cfg->level == f_type || log_cfg->level == ALL) {
+
         #ifdef COLOR_ENABLED
         printf("%s%s%s", _log_colors[f_type], p, RESET);
 
@@ -187,14 +196,12 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
         printf("%s", p);
 
         #endif
-        _writeFile(p, DEFAULT_FILENAME);
+
+        _write_file(p, DEFAULT_FILENAME);
     } else {
-        _writeFile(p, DEFAULT_FILENAME);
+        _write_file(p, DEFAULT_FILENAME);
     }
 
     free(p);
     return 0;
 }
-
-// =============================================================================================================
-// починить дефолтные значения log_Config / сделать более читабельный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера  ? цветной режим ?
