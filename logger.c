@@ -3,39 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#define ALL     0
-#define INFO    1
-#define ERROR   2
-#define WARN    3
-#define DEBUG   4
-#define FATAL   5
-
-#define COLOR_ENABLED 1
-
-#define DEFAULT_DATE_FORMAT     3
-
-#define DEFAULT_FILENAME        "_logs.log"
-#define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)"
-
-#define log_info(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
-#define log_warning(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
-#define log_error(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
-#define log_debug(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
-#define log_fatal(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, FATAL)
-
-
-#define RESET       "\e[0m"
-#define RED         "\e[31m"
-#define GREEN       "\e[32m"
-#define YELLOW      "\e[33m"
-#define BLUE        "\e[34m"
-#define MAGENTA     "\e[35m"
-#define CYAN        "\e[36m"
-#define WHITE       "\e[37m"
-
-#define FATAL_RED   "\e[38;5;196m"
-#define GREY        "\e[38;5;240"
+#include "logger.h"
 
 const char* log_colors[] = {
     RESET,          // ALL
@@ -45,18 +13,6 @@ const char* log_colors[] = {
     BLUE,           // DEBUG
     FATAL_RED       // FATAL
 };
-
-
-typedef struct log
-{
-
-    char    *filename;
-    char    *format;
-    int     level;
-    char    color;
-
-} Config;
-
 
 void setLevel(Config *logCfg, int const Level)      { logCfg->level = Level; }
 
@@ -228,7 +184,7 @@ int _writeFile(char *msg, char *filename) {
     return -1;
 }
 
-int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filename, int f_type) 
+int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filename, int f_type)
 {
     char *p = Formatter(msg, logCfg, f_type, lineNum, filename);
     if (!p) { return -1; }
@@ -252,25 +208,6 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
     return 0;
 }
 
-
-void test_logging() {
-    Config config;
-
-    config.level = ALL;
-    config.format = "%(time)  [%(level)]\t %(filename):%(line)   %(message)";
-    config.filename = "logs.log";
-
-    const char* info_message = "This is an info message";
-    const char* warning_message = "This is a warning message";
-    const char* error_message = "This is an error message";
-    const char* debug_message = "This is a debug message";
-
-    log_info(info_message, &config);
-    log_warning(warning_message, &config);
-    log_error(error_message, &config);
-    log_debug(debug_message, &config);
-
-}
 // =============================================================================================================
 // починить дефолтные значения log_Config / сделать более читабельный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера  ? цветной режим ?
  
