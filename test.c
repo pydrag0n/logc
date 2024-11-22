@@ -1,5 +1,4 @@
-
-#include "logger.c"
+#include "logger.h"
 
 int main()
 {
