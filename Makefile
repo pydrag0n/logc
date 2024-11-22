@@ -1,18 +1,24 @@
 CC = gcc
 CFLAGS = -Wall -g
+DEPFLAGS = -MT $@ -MMD -MP -MF $(O)/$*.d
 
 O = out
 OBJS = $(O)/logger.o $(O)/test.o
+DEPFILES = $(OBJS:%.o=%.d)
 
 .PHONY: all
-all: out $(O)/log.exe
+all: $(O) $(O)/log.exe
 	$(O)/log.exe
-
-out:
-	mkdir out
 
 $(O)/log.exe: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(O)/log.exe
 
-$(O)/%.o: /%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(O):
+	mkdir $@
+
+$(O)/%.o : %.c $(O)/%.d
+	$(CC) $(DEPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(DEPFILES):
+
+include $(wildcard $(DEPFILES))
