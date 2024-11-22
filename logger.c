@@ -178,12 +178,10 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
 {
     char *p = Formatter(msg, logCfg, f_type, lineNum, filename);
     if (!p) { return -1; }
-    char *final_message = p;
 
     if (logCfg->level == f_type || logCfg->level == ALL) {
         #ifdef COLOR_ENABLED
         printf("%s%s%s", _log_colors[f_type], p, RESET);
-        final_message = p;
 
         #else
         printf("%s", p);
