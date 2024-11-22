@@ -14,5 +14,5 @@ out:
 $(O)/log.exe: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(O)/log.exe
 
-$(O)/%.o: %.c
+$(O)/%.o: /%.c
 	$(CC) $(CFLAGS) -c $< -o $@

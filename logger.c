@@ -5,7 +5,7 @@
 
 #include "logger.h"
 
-const char* log_colors[] = {
+const char* _log_colors[] = {
     RESET,          // ALL
     GREEN,          // INFO
     RED,            // ERROR
@@ -13,6 +13,16 @@ const char* log_colors[] = {
     BLUE,           // DEBUG
     FATAL_RED       // FATAL
 };
+
+const char* _log_level_text[] = {
+    "ALL",
+    "INFO",
+    "ERROR",
+    "WARNING",
+    "DEBUG",
+    "FATAL"
+};
+
 
 void setLevel(Config *logCfg, int const Level)      { logCfg->level = Level; }
 
@@ -40,7 +50,7 @@ char *_colorText(char *color, char *text) {
 }
 
 
-char *getDatetime(char dateType) 
+char *getDatetime(char dateType)
 {
     int date_size = 256;
     char *datetime = malloc(date_size);
@@ -66,13 +76,13 @@ char *getDatetime(char dateType)
                 timeinfo->tm_year+1900);
         break;
     case 3: // 2024-11-20 21:50:10
-        sprintf(datetime, "%04d-%02d-%02d", 
+        sprintf(datetime, "%04d-%02d-%02d",
                 timeinfo->tm_year+1900,
                 timeinfo->tm_mon+1,
                 timeinfo->tm_mday);
         break;
     case 4: // 2024-20-11 21:50:10
-        sprintf(datetime, "%04d-%02d-%02d", 
+        sprintf(datetime, "%04d-%02d-%02d",
                 timeinfo->tm_year+1900,
                 timeinfo->tm_mday,
                 timeinfo->tm_mon+1);
@@ -82,7 +92,7 @@ char *getDatetime(char dateType)
 
     }
 
-    sprintf(_time, " %02d:%02d:%02d", 
+    sprintf(_time, " %02d:%02d:%02d",
             timeinfo->tm_hour,
             timeinfo->tm_min,
             timeinfo->tm_sec);
@@ -96,7 +106,7 @@ char *Formatter(char const *msg,
                 Config *logCfg,
                 int f_type,
                 int line_num,
-                const char *filename) 
+                const char *filename)
 {
     // NULL = error
 
@@ -112,7 +122,7 @@ char *Formatter(char const *msg,
 
     output[0] = '\0';
     const char *form = logCfg->format;
-    
+
     for (int i = 0; form[i] != '\0'; i++) {
         if (form[i] == '%' && form[i + 1] == '(') {
             i+=2;
@@ -139,34 +149,14 @@ char *Formatter(char const *msg,
             } else if (strcmp(param, "message") == 0) {
                 sprintf(in_output, "%s", msg);
             } else if (strcmp(param, "level") == 0) {
-                switch (f_type)
-                {
-                case ERROR:
-                    sprintf(in_output, "%s", "ERROR");
-                    break;
-                case INFO:
-                    sprintf(in_output, "%s", "INFO");
-                    break;
-                case WARN:
-                    sprintf(in_output, "%s", "WARNING");
-                    break;
-                case DEBUG:
-                    sprintf(in_output, "%s", "DEBUG");
-                    break;
-                case FATAL:
-                    sprintf(in_output, "%s", "FATAL");
-                    break;
-                default:
-                    sprintf(in_output, "%s", "ALL");
-                    break;
-                }
+                sprintf(in_output, _log_level_text[f_type]);
             } else {
                 sprintf(in_output, "UNCNOWN_PARAM(%s)", param);
             }
 
             strcat(output, in_output);
-        } else { 
-            strncat(output, &form[i], 1); 
+        } else {
+            strncat(output, &form[i], 1);
         }
     }
     free(in_output);
@@ -192,16 +182,16 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
 
     if (logCfg->level == f_type || logCfg->level == ALL) {
         #ifdef COLOR_ENABLED
-        printf("%s%s%s", log_colors[f_type], p, RESET);
+        printf("%s%s%s", _log_colors[f_type], p, RESET);
         final_message = p;
 
         #else
         printf("%s", p);
-        
+
         #endif
         _writeFile(p, DEFAULT_FILENAME);
-    } else { 
-        _writeFile(p, DEFAULT_FILENAME); 
+    } else {
+        _writeFile(p, DEFAULT_FILENAME);
     }
 
     free(p);
@@ -210,4 +200,3 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
 
 // =============================================================================================================
 // починить дефолтные значения log_Config / сделать более читабельный код / дать нормальные назвния функциям / пофиксить ошибки / сделать автоматическое расширение буффера  ? цветной режим ?
- 

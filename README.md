@@ -1,8 +1,8 @@
 # logging C
 
-![file](file.png)
+![file](imgs/file.png)
 
-![terminal](terminal.png)
+![terminal](imgs/terminal.png)
 
 ## Config
 
