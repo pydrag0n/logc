@@ -2,7 +2,7 @@
 
 ![file](file.png)
 
-![console](console.png)
+![terminal](terminal.png)
 
 ## Config
 
@@ -17,6 +17,7 @@
 - ERROR
 - WARN
 - DEBUG
+- FATAL
 
 ## Format
 
@@ -26,10 +27,11 @@
 
 ## Functions
 
-- info_print;
-- warning_print;
-- error_print;
-- debug_print;
+- log_info
+- log_warning
+- log_error
+- log_debug
+- log_fatal
 
 ## Example
 
@@ -53,6 +55,7 @@ int main()
     warning_print(warning_message, &config);
     error_print(error_message, &config);
     debug_print(debug_message, &config);
+    log_fatal(fatal_message, &config);
 
     return 0;
 }

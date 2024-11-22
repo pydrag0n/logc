@@ -20,5 +20,6 @@ int main()
     log_error(error_message, &config);
     log_debug(debug_message, &config);
     log_fatal(fatal_message, &config);
+
     return 0;
 }

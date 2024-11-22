@@ -34,16 +34,16 @@
 #define CYAN        "\e[36m"
 #define WHITE       "\e[37m"
 
-#define FATAL_RED   "\e[31;4m"
+#define FATAL_RED   "\e[38;5;196m"
 #define GREY        "\e[38;5;240"
 
 const char* log_colors[] = {
-    RESET,     // ALL
-    GREEN,     // INFO
-    RED,       // ERROR
-    YELLOW,    // WARN
-    BLUE,      // DEBUG
-    FATAL_RED        // FATAL
+    RESET,          // ALL
+    GREEN,          // INFO
+    RED,            // ERROR
+    YELLOW,         // WARN
+    BLUE,           // DEBUG
+    FATAL_RED       // FATAL
 };
 
 
