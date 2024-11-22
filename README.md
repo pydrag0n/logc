@@ -1,5 +1,9 @@
 # logging C
 
+![file](file.png)
+
+![console](console.png)
+
 ## Config
 
 - level - set a filter for the output of messages
@@ -26,7 +30,6 @@
 - warning_print;
 - error_print;
 - debug_print;
-
 
 ## Example
 

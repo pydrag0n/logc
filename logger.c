@@ -9,65 +9,62 @@
 #define ERROR   2
 #define WARN    3
 #define DEBUG   4
+#define FATAL   5
 
+#define COLOR_ENABLED 1
 
-#define LOG_COLOR               0
 #define DEFAULT_DATE_FORMAT     3
 
 #define DEFAULT_FILENAME        "_logs.log"
 #define DEFAULT_FORMAT          "%(time) [%(level)] %(filename):%(line) %(message)"
 
-#define info_print(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
-#define warning_print(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
-#define error_print(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
-#define debug_print(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
+#define log_info(msg, logCfg)     _based_print(msg, logCfg, __LINE__, __FILE__, INFO)
+#define log_warning(msg, logCfg)  _based_print(msg, logCfg, __LINE__, __FILE__, WARN)
+#define log_error(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, ERROR)
+#define log_debug(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, DEBUG)
+#define log_fatal(msg, logCfg)    _based_print(msg, logCfg, __LINE__, __FILE__, FATAL)
 
 
-#ifdef LOG_COLOR
+#define RESET       "\e[0m"
+#define RED         "\e[31m"
+#define GREEN       "\e[32m"
+#define YELLOW      "\e[33m"
+#define BLUE        "\e[34m"
+#define MAGENTA     "\e[35m"
+#define CYAN        "\e[36m"
+#define WHITE       "\e[37m"
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define WHITE   "\033[37m"
-#define GREY    "\e[38;5;240"
+#define FATAL_RED   "\e[31;4m"
+#define GREY        "\e[38;5;240"
 
-#define INFO_TEXT   _colorText(GREEN,   "INFO")
-#define ERROR_TEXT  _colorText(RED,     "ERROR")
-#define WARN_TEXT   _colorText(RED,     "WARNING")
-#define DEBUG_TEXT  _colorText(CYAN,    "DEBUG")
-#define ALL_TEXT    _colorText(BLUE,    "ALL")
+const char* log_colors[] = {
+    RESET,     // ALL
+    GREEN,     // INFO
+    RED,       // ERROR
+    YELLOW,    // WARN
+    BLUE,      // DEBUG
+    FATAL_RED        // FATAL
+};
 
-#else
-
-#define INFO_TEXT   "INFO"
-#define ERROR_TEXT  "ERROR"
-#define WARN_TEXT   "WARNING"
-#define DEBUG_TEXT  "DEBUG"
-#define ALL_TEXT  "ALL"
-
-#define UNCNOWN     "UNCNOWN_PARAM"
-
-#endif
 
 typedef struct log
 {
 
-    char *filename;
-    char *format;
-    int level;
+    char    *filename;
+    char    *format;
+    int     level;
+    char    color;
 
 } Config;
 
 
-void setLevel(Config *logCfg, int const Level) { logCfg->level = Level; }
+void setLevel(Config *logCfg, int const Level)      { logCfg->level = Level; }
 
-void setFilename(Config *logCfg, char *Filename) { logCfg->filename = Filename; }
+void setFilename(Config *logCfg, char *Filename)    { logCfg->filename = Filename; }
 
-void setFormat(Config *logCfg, char *Format) { logCfg->format = Format; }
+void setFormat(Config *logCfg, char *Format)        { logCfg->format = Format; }
+
+void setColor(Config *logCfg, char color)           { logCfg->color = color; }
 
 
 char *_colorText(char *color, char *text) {
@@ -147,7 +144,8 @@ char *Formatter(char const *msg,
 {
     // NULL = error
 
-    const int output_size = 1024;
+
+    const int output_size = strlen(msg) + strlen(filename) + line_num + 256 + 50;
     char *output = malloc(output_size);
     char *in_output = malloc(output_size);
 
@@ -199,6 +197,9 @@ char *Formatter(char const *msg,
                 case DEBUG:
                     sprintf(in_output, "%s", "DEBUG");
                     break;
+                case FATAL:
+                    sprintf(in_output, "%s", "FATAL");
+                    break;
                 default:
                     sprintf(in_output, "%s", "ALL");
                     break;
@@ -231,9 +232,17 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
 {
     char *p = Formatter(msg, logCfg, f_type, lineNum, filename);
     if (!p) { return -1; }
+    char *final_message = p;
 
     if (logCfg->level == f_type || logCfg->level == ALL) {
+        #ifdef COLOR_ENABLED
+        printf("%s%s%s", log_colors[f_type], p, RESET);
+        final_message = p;
+
+        #else
         printf("%s", p);
+        
+        #endif
         _writeFile(p, DEFAULT_FILENAME);
     } else { 
         _writeFile(p, DEFAULT_FILENAME); 
@@ -242,7 +251,6 @@ int _based_print(const char *msg, Config *logCfg, int lineNum, const char *filen
     free(p);
     return 0;
 }
-
 
 
 void test_logging() {
@@ -257,10 +265,10 @@ void test_logging() {
     const char* error_message = "This is an error message";
     const char* debug_message = "This is a debug message";
 
-    info_print(info_message, &config);
-    warning_print(warning_message, &config);
-    error_print(error_message, &config);
-    debug_print(debug_message, &config);
+    log_info(info_message, &config);
+    log_warning(warning_message, &config);
+    log_error(error_message, &config);
+    log_debug(debug_message, &config);
 
 }
 // =============================================================================================================

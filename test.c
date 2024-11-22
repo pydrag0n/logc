@@ -13,11 +13,12 @@ int main()
     const char* warning_message = "This is a warning message";
     const char* error_message = "This is an error message";
     const char* debug_message = "This is a debug message";
+    const char* fatal_message = "This is a fatal message";
 
-    info_print(info_message,        &config);
-    warning_print(warning_message,  &config);
-    error_print(error_message,      &config);
-    debug_print(debug_message,      &config);
-
+    log_info(info_message, &config);
+    log_warning(warning_message, &config);
+    log_error(error_message, &config);
+    log_debug(debug_message, &config);
+    log_fatal(fatal_message, &config);
     return 0;
 }
