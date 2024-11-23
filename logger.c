@@ -25,16 +25,13 @@ const char* _log_level_text[] = {
 
 static Config def_cfg = {DEFAULT_FILENAME, DEFAULT_FORMAT, ALL};
 
-void set_filename(char *Filename)    { def_cfg.filename = Filename; }
+void set_filename(char *Filename)   { def_cfg.filename = Filename; }
 
-void set_format(char *Format)        { def_cfg.format = Format; }
+void set_format(char *Format)       { def_cfg.format = Format; }
 
-void set_level(int const Level)      { def_cfg.level = Level; }
+void set_level(int const Level)     { def_cfg.level = Level; }
 
-void set_def_cfg(Config *log_cfg)
-{
-    def_cfg = *log_cfg;
-}
+void set_def_cfg(Config *log_cfg)   { def_cfg = *log_cfg; }
 
 Config *get_def_cfg() { return &def_cfg; }
 

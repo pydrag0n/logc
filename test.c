@@ -10,12 +10,14 @@ int main()
     const char* error_message = "This is an error message";
     const char* debug_message = "This is a debug message";
     const char* fatal_message = "This is a fatal message";
+
+
     log_info(info_message);
     log_warning(warning_message);
     log_error(error_message);
     log_debug(debug_message);
     log_fatal(fatal_message);
-    printf("\n\n");
+
     set_def_cfg(&newConfig);
 
     log_info(info_message);
