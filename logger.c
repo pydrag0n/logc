@@ -166,7 +166,7 @@ char *_Formatter(char const *msg,
     return output;
 }
 
-int _write_file(char *msg, char *filename) {
+int _write_file(char *msg, const char *filename) {
     FILE *fp = fopen(filename, "a");
     if (fp) {
         fputs(msg, fp);
@@ -194,9 +194,9 @@ int _log_append(const char *msg, int line_num, const char *filename, int f_type)
 
         #endif
 
-        _write_file(p, DEFAULT_FILENAME);
+        _write_file(p, def_cfg.filename);
     } else {
-        _write_file(p, DEFAULT_FILENAME);
+        _write_file(p, def_cfg.filename);
     }
 
     free(p);
