@@ -8,7 +8,7 @@ OBJSTEST = $(O)/test.o
 DEPFILES = $(OBJS:%.o=%.d)
 DEPFILES += $(OBJSTEST:%.o=%.d)
 
-.PHONY: all
+.PHONY: all check
 all: $(O) $(O)/log.a
 
 check: $(O) $(O)/test.exe
