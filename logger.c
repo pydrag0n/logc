@@ -127,7 +127,7 @@ char *_Formatter(char const *msg,
     for (int i = 0; form[i] != '\0'; i++) {
         if (form[i] == '%' && form[i + 1] == '(') {
             i+=2;
-            int j = 0;
+            unsigned int j = 0;
             char param[50];
             while (form[i] != ')' && form[i] != '\0' && j < sizeof(param) - 1) {
                 param[j++] = form[i++];
