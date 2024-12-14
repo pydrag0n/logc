@@ -3,7 +3,7 @@
 
 int main()
 {
-     Config newConfig = { "new_log.log", "%(level): %(message)\n", ALL };
+    Config newConfig = { "out/new_log.log", "%(level): %(message)\n", ALL };
 
     const char* info_message = "This is an info message";
     const char* warning_message = "This is a warning message";
